@@ -1,7 +1,7 @@
 <template>
   <div class="absolute bottom-6 right-14 z-10 flex flex-col items-end gap-3">
     <!-- Botão de Ativação (se inativo) -->
-    <button 
+    <button
       v-if="!routeStore.isActive"
       @click="routeStore.toggleActive"
       class="bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
@@ -23,8 +23,8 @@
       leave-from-class="transform translate-y-0 opacity-100 scale-100"
       leave-to-class="transform translate-y-4 opacity-0 scale-95"
     >
-      <div 
-        v-if="routeStore.isActive" 
+      <div
+        v-if="routeStore.isActive"
         class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-6 py-5 shadow-2xl rounded-2xl border border-white/20 dark:border-gray-700/50 min-w-[320px] max-w-[400px]"
       >
         <div class="flex items-center justify-between mb-4">
@@ -32,8 +32,8 @@
             <div class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></div>
             <h3 class="text-xs font-black text-gray-800 dark:text-white uppercase tracking-widest">Modo Roteiro</h3>
           </div>
-          <button 
-            @click="routeStore.toggleActive" 
+          <button
+            @click="routeStore.toggleActive"
             class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-red-500"
             title="Fechar"
           >
@@ -43,7 +43,7 @@
           </button>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
           <!-- Status / Instruções -->
           <div class="text-sm text-gray-600 dark:text-gray-300">
             <div v-if="!routeStore.startPoint && !routeStore.isLoading" class="flex items-center gap-3 py-2">
@@ -55,7 +55,7 @@
               <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-bold text-xs">B</div>
               <span class="font-medium animate-pulse">Agora selecione o Ponto de Destino</span>
             </div>
-            
+
             <div v-else-if="routeStore.isLoading" class="flex items-center gap-3 py-4 justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl">
               <div class="flex space-x-1.5">
                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -77,37 +77,54 @@
             </div>
 
             <!-- Resultado -->
-            <div v-else-if="routeStore.totalCost !== null" class="flex flex-col gap-3">
-              <div class="flex items-center gap-4 py-3 px-4 bg-blue-500 shadow-lg shadow-blue-500/30 rounded-2xl text-white">
-                <div class="flex-1">
-                  <p class="text-[10px] opacity-80 font-bold uppercase tracking-widest mb-0.5">Custo Total</p>
-                  <p class="text-2xl font-black">{{ formatCost(routeStore.totalCost) }}</p>
+            <div v-else-if="routeStore.totalCost !== null" class="flex flex-col gap-2">
+              <!-- Métricas principais: tempo + distância -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="flex flex-col px-3 py-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                  <span class="text-[9px] font-bold uppercase tracking-widest text-blue-400 mb-0.5">Tempo Est.</span>
+                  <span class="text-lg font-black text-blue-700 dark:text-blue-300 leading-tight">{{ formatTime(routeStore.totalCost) }}</span>
                 </div>
-                <div class="p-2 bg-white/20 rounded-xl">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                <div class="flex flex-col px-3 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Distância</span>
+                  <span class="text-lg font-black text-gray-700 dark:text-gray-200 leading-tight">
+                    {{ routeStore.totalDistanceKm ? formatDistance(routeStore.totalDistanceKm) : '—' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Velocidade média -->
+              <div v-if="avgSpeed !== null" class="flex items-center justify-between px-3 py-2 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                <div class="flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">Vel. Média Est.</span>
                 </div>
+                <span class="text-sm font-black text-amber-700 dark:text-amber-300">{{ avgSpeed }} km/h</span>
               </div>
             </div>
           </div>
 
-          <!-- Pontos (Debug/Info) -->
-          <div v-if="routeStore.startPoint" class="flex flex-col gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="text-gray-400 font-bold uppercase">Origem</span>
-              <span class="text-gray-600 dark:text-gray-400 tabular-nums">{{ routeStore.startPoint.map(c => c.toFixed(5)).join(', ') }}</span>
+          <!-- Pontos A e B -->
+          <div v-if="routeStore.startPoint" class="flex flex-col gap-1.5 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 font-black text-[9px] shrink-0">A</div>
+              <span class="text-[11px] text-gray-600 dark:text-gray-400 truncate">
+                {{ routeStore.startAddress || routeStore.startPoint.map(c => c.toFixed(4)).join(', ') }}
+              </span>
             </div>
-            <div v-if="routeStore.endPoint" class="flex items-center justify-between text-[11px]">
-              <span class="text-gray-400 font-bold uppercase">Destino</span>
-              <span class="text-gray-600 dark:text-gray-400 tabular-nums">{{ routeStore.endPoint.map(c => c.toFixed(5)).join(', ') }}</span>
+            <div v-if="routeStore.endPoint" class="flex items-center gap-2 min-w-0">
+              <div class="w-5 h-5 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-black text-[9px] shrink-0">B</div>
+              <span class="text-[11px] text-gray-600 dark:text-gray-400 truncate">
+                {{ routeStore.endAddress || routeStore.endPoint.map(c => c.toFixed(4)).join(', ') }}
+              </span>
             </div>
           </div>
 
           <!-- Botão de Limpar -->
-          <button 
+          <button
             v-if="routeStore.startPoint"
-            @click="routeStore.clearRoute" 
+            @click="routeStore.clearRoute"
             class="w-full py-2.5 text-xs font-bold text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,23 +139,29 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouteStore } from '../../stores/route'
 
 const routeStore = useRouteStore()
 
-function formatCost(cost: number) {
-  if (cost > 1000) {
-    return `${(cost / 1000).toFixed(2)} km`
-  }
-  return `${cost.toFixed(1)} m`
+function formatTime(hours: number): string {
+  const h = Math.floor(hours)
+  const min = Math.round((hours - h) * 60)
+  if (h === 0) return `${min}min`
+  if (min === 0) return `${h}h`
+  return `${h}h ${min}min`
 }
-</script>
 
-<style scoped>
-.backdrop-blur-md {
-  backdrop-filter: blur(12px);
+function formatDistance(km: number): string {
+  if (km >= 1) return `${Math.round(km)} km`
+  return `${Math.round(km * 1000)} m`
 }
-</style>
+
+const avgSpeed = computed<number | null>(() => {
+  if (!routeStore.totalCost || !routeStore.totalDistanceKm) return null
+  return Math.round(routeStore.totalDistanceKm / routeStore.totalCost)
+})
+</script>
 
 <style scoped>
 .backdrop-blur-md {
