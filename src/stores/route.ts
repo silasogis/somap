@@ -20,12 +20,36 @@ function calcDistanceKm(geojson: any): number {
     if (!geom) continue
     if (geom.type === 'LineString') {
       const coords: number[][] = geom.coordinates ?? []
-      for (let i = 1; i < coords.length; i++)
-        total += haversineKm(coords[i - 1][1], coords[i - 1][0], coords[i][1], coords[i][0])
+      for (let i = 1; i < coords.length; i++) {
+        const p1 = coords[i - 1]
+        const p2 = coords[i]
+        if (p1 && p2) {
+          const lon1 = p1[0]
+          const lat1 = p1[1]
+          const lon2 = p2[0]
+          const lat2 = p2[1]
+          if (lat1 !== undefined && lon1 !== undefined && lat2 !== undefined && lon2 !== undefined) {
+            total += haversineKm(lat1, lon1, lat2, lon2)
+          }
+        }
+      }
     } else if (geom.type === 'MultiLineString') {
-      for (const line of (geom.coordinates ?? []))
-        for (let i = 1; i < line.length; i++)
-          total += haversineKm(line[i - 1][1], line[i - 1][0], line[i][1], line[i][0])
+      for (const line of (geom.coordinates ?? [])) {
+        if (!line) continue
+        for (let i = 1; i < line.length; i++) {
+          const p1 = line[i - 1]
+          const p2 = line[i]
+          if (p1 && p2) {
+            const lon1 = p1[0]
+            const lat1 = p1[1]
+            const lon2 = p2[0]
+            const lat2 = p2[1]
+            if (lat1 !== undefined && lon1 !== undefined && lat2 !== undefined && lon2 !== undefined) {
+              total += haversineKm(lat1, lon1, lat2, lon2)
+            }
+          }
+        }
+      }
     }
   }
   return total
