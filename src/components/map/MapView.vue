@@ -4,6 +4,8 @@
     <MapSearch />
     <MapRoute />
     <RoutePanel />
+    <MapNdviClimate />
+    <NdviClimatePanel />
     <MapPopup />
     <MapControls />
     <MapAttributions />
@@ -20,6 +22,8 @@ import MapPopup from './MapPopup.vue'
 import MapAttributions from './MapAttributions.vue'
 import MapRoute from './MapRoute.vue'
 import RoutePanel from '../ui/RoutePanel.vue'
+import MapNdviClimate from './MapNdviClimate.vue'
+import NdviClimatePanel from '../ui/NdviClimatePanel.vue'
 
 const { map } = useMap('ol-map-target')
 useLayer(map)

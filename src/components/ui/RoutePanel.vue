@@ -1,8 +1,11 @@
 <template>
-  <div class="absolute bottom-6 right-14 z-10 flex flex-col items-end gap-3">
-    <!-- Botão de Ativação (se inativo) -->
+  <div
+    class="absolute z-10 flex flex-col items-end gap-3 transition-all duration-300"
+    :class="routeStore.isActive ? 'bottom-6 right-14' : 'bottom-[86px] right-14'"
+  >
+    <!-- Botão de Ativação (se inativo e NDVI inativo) -->
     <button
-      v-if="!routeStore.isActive"
+      v-if="!routeStore.isActive && !ndviClimateStore.isActive"
       @click="routeStore.toggleActive"
       class="bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
     >
@@ -141,8 +144,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouteStore } from '../../stores/route'
+import { useNdviClimateStore } from '../../stores/ndviClimate'
 
 const routeStore = useRouteStore()
+const ndviClimateStore = useNdviClimateStore()
 
 function formatTime(hours: number): string {
   const h = Math.floor(hours)

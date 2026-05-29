@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { routeService } from '../services/routeService'
 import { geocodingService } from '../services/geocodingService'
+import { useNdviClimateStore } from './ndviClimate'
 
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371
@@ -70,7 +71,14 @@ export const useRouteStore = defineStore('route', () => {
 
   function toggleActive() {
     isActive.value = !isActive.value
-    if (!isActive.value) clearRoute()
+    if (isActive.value) {
+      const ndviStore = useNdviClimateStore()
+      if (ndviStore.isActive) {
+        ndviStore.toggleActive()
+      }
+    } else {
+      clearRoute()
+    }
   }
 
   async function setPoint(coords: [number, number]) {

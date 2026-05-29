@@ -53,8 +53,12 @@ import Overlay from 'ol/Overlay'
 import { toLonLat } from 'ol/proj'
 import { geocodingService } from '../../services/geocodingService'
 import type { NominatimResult } from '../../types/geocoding'
+import { useNdviClimateStore } from '../../stores/ndviClimate'
+import { useRouteStore } from '../../stores/route'
 
 const map = inject<Ref<Map | null>>('olMap')
+const ndviClimateStore = useNdviClimateStore()
+const routeStore = useRouteStore()
 const popupElement = ref<HTMLElement | null>(null)
 const result = ref<NominatimResult | null>(null)
 const loading = ref(false)
@@ -74,6 +78,11 @@ function formatType(type: string) {
 
 function handleMapClick(event: any) {
   if (!map?.value || !overlay) return
+
+  // Impedir popup de geocodificação durante desenho ativo ou roteirização ativa
+  if (ndviClimateStore.isDrawing || routeStore.isActive) {
+    return
+  }
 
   const coords = event.coordinate
   const [lon84, lat84] = toLonLat(coords)
@@ -128,6 +137,19 @@ onMounted(() => {
       newMap.on('singleclick', handleMapClick)
     }
   }, { immediate: true })
+
+  // Fechar o popup se o usuário começar a desenhar ou calcular rotas
+  watch(() => ndviClimateStore.isDrawing, (drawing) => {
+    if (drawing) {
+      closePopup()
+    }
+  })
+
+  watch(() => routeStore.isActive, (active) => {
+    if (active) {
+      closePopup()
+    }
+  })
 })
 
 onUnmounted(() => {
