@@ -7,8 +7,10 @@
         </svg>
       </button>
       <div class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-teal-400 flex items-center gap-2 tracking-tight">
-        <div class="w-6 h-6 bg-teal-600 rounded-lg shadow-sm flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg></div>
-        WebGIS
+        <div class="w-8 h-8 rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+          <img src="/icons_somap/somap-mark.svg" class="w-full h-full object-cover" alt="SOMAP Icon" />
+        </div>
+        SOMAP - WebGIS
       </div>
     </div>
     <div class="flex items-center gap-4">

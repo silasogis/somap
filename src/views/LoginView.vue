@@ -1,9 +1,15 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-    <div class="max-w-sm w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-black/20 border border-gray-100 dark:border-gray-700/50">
+  <div class="relative min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors overflow-hidden">
+    <!-- Imagem de Fundo com 50% de Opacidade -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-50 select-none">
+      <img src="/pexels-slimmars-13-197677686-27062665.jpg" class="w-full h-full object-cover" alt="Fundo SOMAP" />
+    </div>
+
+    <!-- Card de Login com Efeito de Vidro (Glassmorphism) -->
+    <div class="relative z-10 max-w-sm w-full space-y-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-700/50">
       <div>
-        <div class="mx-auto w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl shadow-lg mb-6 flex items-center justify-center text-white font-bold text-2xl">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+        <div class="mx-auto w-21 h-21 mb-6 flex items-center justify-center overflow-hidden rounded-2xl">
+          <img src="/icons_somap/favicon-light.svg" class="w-full h-full object-cover" alt="SOMAP Icon" />
         </div>
         <h2 class="mt-2 text-center text-xl font-bold text-gray-900 dark:text-white tracking-tight">
           SOMAP WebGIS
@@ -17,7 +23,7 @@
           <div>
             <label for="email-address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
             <input id="email-address" name="email" type="email" autocomplete="email" required v-model="email"
-                   class="appearance-none block w-full px-4 py-3 border border-gray-200 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all sm:text-sm shadow-sm" placeholder="seu-email@email.com">
+                   class="appearance-none block w-full px-4 py-3 border border-gray-200 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all sm:text-sm shadow-sm" placeholder="seu@email.com">
           </div>
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Senha</label>
