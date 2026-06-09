@@ -1,6 +1,6 @@
 <template>
-  <div class="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)]">
-    <div class="relative group">
+  <div class="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-2 pointer-events-none">
+    <div class="relative group pointer-events-auto">
       <div class="flex items-center bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
         <div class="pl-3 text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,13 +77,31 @@
         Buscando...
       </div>
     </div>
+
+    <!-- Botão de Informação (Identify) -->
+    <div class="flex pointer-events-auto">
+      <button
+        @click="identifyStore.toggleActive()"
+        :class="[
+          'w-8 h-8 shadow-md rounded flex items-center justify-center border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+          identifyStore.isActive
+            ? 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700'
+            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+        ]"
+        title="Identificar feições nas camadas"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, inject, type Ref, watch, onMounted, onUnmounted } from 'vue'
 import type Map from 'ol/Map'
-import { fromLonLat, toLonLat } from 'ol/proj'
+import { fromLonLat } from 'ol/proj'
 import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import VectorLayer from 'ol/layer/Vector'
@@ -92,9 +110,11 @@ import { Style, Icon } from 'ol/style'
 import { geocodingService } from '../../services/geocodingService'
 import type { NominatimResult } from '../../types/geocoding'
 import { useRouteStore } from '../../stores/route'
+import { useIdentifyStore } from '../../stores/identify'
 
 const map = inject<Ref<Map | null>>('olMap')
 const routeStore = useRouteStore()
+const identifyStore = useIdentifyStore()
 const searchQuery = ref('')
 const results = ref<NominatimResult[]>([])
 const loading = ref(false)

@@ -55,10 +55,14 @@ import { geocodingService } from '../../services/geocodingService'
 import type { NominatimResult } from '../../types/geocoding'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
 import { useRouteStore } from '../../stores/route'
+import { useSentinelRgbStore } from '../../stores/sentinelRgb'
+import { useIdentifyStore } from '../../stores/identify'
 
 const map = inject<Ref<Map | null>>('olMap')
 const ndviClimateStore = useNdviClimateStore()
 const routeStore = useRouteStore()
+const sentinelRgbStore = useSentinelRgbStore()
+const identifyStore = useIdentifyStore()
 const popupElement = ref<HTMLElement | null>(null)
 const result = ref<NominatimResult | null>(null)
 const loading = ref(false)
@@ -79,8 +83,8 @@ function formatType(type: string) {
 function handleMapClick(event: any) {
   if (!map?.value || !overlay) return
 
-  // Impedir popup de geocodificação durante desenho ativo ou roteirização ativa
-  if (ndviClimateStore.isDrawing || routeStore.isActive) {
+  // Impedir popup de geocodificação durante desenho ativo, roteirização ativa ou identificação ativa
+  if (identifyStore.isActive || ndviClimateStore.isDrawing || routeStore.isActive || sentinelRgbStore.isDrawing) {
     return
   }
 
@@ -146,6 +150,18 @@ onMounted(() => {
   })
 
   watch(() => routeStore.isActive, (active) => {
+    if (active) {
+      closePopup()
+    }
+  })
+
+  watch(() => sentinelRgbStore.isDrawing, (drawing) => {
+    if (drawing) {
+      closePopup()
+    }
+  })
+
+  watch(() => identifyStore.isActive, (active) => {
     if (active) {
       closePopup()
     }

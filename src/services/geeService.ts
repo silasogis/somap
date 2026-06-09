@@ -42,6 +42,21 @@ export interface ClimateResponse {
   }
 }
 
+export interface SentinelRgbTileInfo {
+  satellite: string
+  tile_url: string
+}
+
+export interface SentinelRgbResponse {
+  rgb_tiles?: Record<string, SentinelRgbTileInfo>
+  tiles?: Record<string, SentinelRgbTileInfo>
+  ndvi_tiles?: Record<string, SentinelRgbTileInfo>
+  project_info?: {
+    project_id: string
+    status: string
+  }
+}
+
 export class GeeApiError extends Error {
   constructor(public status: number, public data: any) {
     super(`Earth Engine API Error ${status}`)
@@ -81,6 +96,13 @@ export const geeService = {
   async getClimateStats(point: { type: 'Point'; coordinates: [number, number] }, datePeriods: [string, string][]): Promise<ClimateResponse> {
     return geeFetch<ClimateResponse>('/climate_stats', {
       point,
+      date_periods: datePeriods,
+    })
+  },
+
+  async getSentinelRgb(roi: { type: 'Polygon'; coordinates: number[][][] }, datePeriods: [string, string][]): Promise<SentinelRgbResponse> {
+    return geeFetch<SentinelRgbResponse>('/sentinel_rgb', {
+      roi,
       date_periods: datePeriods,
     })
   },

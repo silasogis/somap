@@ -69,12 +69,17 @@ export const useRouteStore = defineStore('route', () => {
   const errorMessage = ref<string | null>(null)
   const nextPoint = ref<'A' | 'B'>('A')
 
-  function toggleActive() {
+  async function toggleActive() {
     isActive.value = !isActive.value
     if (isActive.value) {
       const ndviStore = useNdviClimateStore()
       if (ndviStore.isActive) {
         ndviStore.toggleActive()
+      }
+      const { useSentinelRgbStore } = await import('./sentinelRgb')
+      const sentinelStore = useSentinelRgbStore()
+      if (sentinelStore.isActive) {
+        sentinelStore.toggleActive()
       }
     } else {
       clearRoute()

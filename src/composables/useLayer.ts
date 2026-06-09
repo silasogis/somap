@@ -18,8 +18,10 @@ export function useLayer(mapRef: { value: OLMap | null }) {
   const olLayers = new Map<string, BaseLayer>()
 
   function createOLLayer(config: LayerConfig): BaseLayer | null {
+    let layer: BaseLayer | null = null
+
     if (config.type === 'xyz') {
-      return new TileLayer({
+      layer = new TileLayer({
         source: new XYZ({
           url: config.source.url,
           attributions: config.attribution
@@ -30,8 +32,8 @@ export function useLayer(mapRef: { value: OLMap | null }) {
       })
     }
     
-    if (config.type === 'wms') {
-      return new TileLayer({
+    else if (config.type === 'wms') {
+      layer = new TileLayer({
         source: new TileWMS({
           url: config.source.url,
           params: {
@@ -46,8 +48,8 @@ export function useLayer(mapRef: { value: OLMap | null }) {
       })
     }
 
-    if (config.type === 'geojson') {
-      return new VectorLayer({
+    else if (config.type === 'geojson') {
+      layer = new VectorLayer({
         source: new VectorSource({
           url: config.source.url,
           format: new GeoJSON()
@@ -59,7 +61,13 @@ export function useLayer(mapRef: { value: OLMap | null }) {
       })
     }
 
-    return null
+    if (layer) {
+      layer.set('id', config.id)
+      layer.set('name', config.name)
+      layer.set('layerType', config.type)
+    }
+
+    return layer
   }
 
   watch(() => [layersStore.layers, mapRef.value] as const, ([layers, map]) => {

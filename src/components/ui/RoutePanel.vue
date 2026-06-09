@@ -1,13 +1,13 @@
 <template>
   <div
-    class="absolute z-10 flex flex-col items-end gap-3 transition-all duration-300"
-    :class="routeStore.isActive ? 'bottom-6 right-14' : 'bottom-[86px] right-14'"
+    class="absolute z-10 flex flex-col items-end gap-3 transition-all duration-300 pointer-events-none"
+    :class="routeStore.isActive ? 'bottom-6 right-14' : 'bottom-[146px] right-14'"
   >
-    <!-- Botão de Ativação (se inativo e NDVI inativo) -->
+    <!-- Botão de Ativação (se todos os painéis estiverem inativos) -->
     <button
-      v-if="!routeStore.isActive && !ndviClimateStore.isActive"
+      v-if="!routeStore.isActive && !ndviClimateStore.isActive && !sentinelRgbStore.isActive"
       @click="routeStore.toggleActive"
-      class="bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
+      class="pointer-events-auto bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
     >
       <div class="p-2 bg-blue-500 rounded-full text-white group-hover:rotate-12 transition-transform">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,7 +28,7 @@
     >
       <div
         v-if="routeStore.isActive"
-        class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-6 py-5 shadow-2xl rounded-2xl border border-white/20 dark:border-gray-700/50 min-w-[320px] max-w-[400px]"
+        class="pointer-events-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-6 py-5 shadow-2xl rounded-2xl border border-white/20 dark:border-gray-700/50 min-w-[320px] max-w-[400px]"
       >
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -145,9 +145,11 @@
 import { computed } from 'vue'
 import { useRouteStore } from '../../stores/route'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
+import { useSentinelRgbStore } from '../../stores/sentinelRgb'
 
 const routeStore = useRouteStore()
 const ndviClimateStore = useNdviClimateStore()
+const sentinelRgbStore = useSentinelRgbStore()
 
 function formatTime(hours: number): string {
   const h = Math.floor(hours)

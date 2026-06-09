@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { geeService, type NdviResponse, type ClimateResponse } from '../services/geeService'
+import { geeService, type SentinelRgbResponse } from '../services/geeService'
 import { useRouteStore } from './route'
+import { useNdviClimateStore } from './ndviClimate'
 
-export const useNdviClimateStore = defineStore('ndviClimate', () => {
+export const useSentinelRgbStore = defineStore('sentinelRgb', () => {
   const isActive = ref(false)
   const isDrawing = ref(false)
   const datePeriods = ref<[string, string][]>([['2024-01-01', '2024-01-28']])
@@ -11,8 +12,7 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
   const roi = ref<{ type: 'Polygon'; coordinates: number[][][] } | null>(null)
   const centroid = ref<[number, number] | null>(null)
   
-  const ndviData = ref<NdviResponse | null>(null)
-  const climateData = ref<ClimateResponse | null>(null)
+  const rgbData = ref<SentinelRgbResponse | null>(null)
   
   const selectedPeriodKey = ref<string>('period_1')
   const tileOpacity = ref<number>(0.8)
@@ -21,18 +21,17 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
   const isLoading = ref(false)
   const errorMessage = ref<string | null>(null)
 
-  async function toggleActive() {
+  function toggleActive() {
     isActive.value = !isActive.value
     if (isActive.value) {
-      // Deactivate routing store to prevent map interaction conflicts
+      // Deactivate routing and NDVI stores to prevent map interaction conflicts
       const routeStore = useRouteStore()
       if (routeStore.isActive) {
         routeStore.toggleActive()
       }
-      const { useSentinelRgbStore } = await import('./sentinelRgb')
-      const sentinelRgbStore = useSentinelRgbStore()
-      if (sentinelRgbStore.isActive) {
-        sentinelRgbStore.toggleActive()
+      const ndviClimateStore = useNdviClimateStore()
+      if (ndviClimateStore.isActive) {
+        ndviClimateStore.toggleActive()
       }
     } else {
       clearAnalysis()
@@ -56,7 +55,6 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
   function removeDatePeriod(index: number) {
     if (datePeriods.value.length > 1) {
       datePeriods.value.splice(index, 1)
-      // If we remove the selected period, default to first period
       const removedKey = `period_${index + 1}`
       if (selectedPeriodKey.value === removedKey) {
         selectedPeriodKey.value = 'period_1'
@@ -83,30 +81,19 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
   }
 
   async function fetchData() {
-    if (!roi.value || !centroid.value || datePeriods.value.length === 0) return
+    if (!roi.value || datePeriods.value.length === 0) return
     
     isLoading.value = true
     errorMessage.value = null
-    ndviData.value = null
-    climateData.value = null
+    rgbData.value = null
 
     try {
-      // Call both GEE API endpoints concurrently
-      const [ndviResult, climateResult] = await Promise.all([
-        geeService.getNdviComposite(roi.value, datePeriods.value),
-        geeService.getClimateStats(
-          { type: 'Point', coordinates: centroid.value },
-          datePeriods.value
-        )
-      ])
-
-      ndviData.value = ndviResult
-      climateData.value = climateResult
-
+      const result = await geeService.getSentinelRgb(roi.value, datePeriods.value)
+      rgbData.value = result
       // Default to period_1 as active layer when data arrives
       selectedPeriodKey.value = 'period_1'
     } catch (err: any) {
-      console.error('Error fetching NDVI-Climate data:', err)
+      console.error('Error fetching Sentinel RGB data:', err)
       errorMessage.value = err.data?.message || err.message || 'Erro ao processar dados no Earth Engine.'
     } finally {
       isLoading.value = false
@@ -116,8 +103,7 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
   function clearAnalysis() {
     roi.value = null
     centroid.value = null
-    ndviData.value = null
-    climateData.value = null
+    rgbData.value = null
     errorMessage.value = null
     isDrawing.value = false
     selectedPeriodKey.value = 'period_1'
@@ -129,8 +115,7 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
     datePeriods,
     roi,
     centroid,
-    ndviData,
-    climateData,
+    rgbData,
     selectedPeriodKey,
     tileOpacity,
     tileVisible,

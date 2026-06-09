@@ -61,7 +61,7 @@ async function onSubmit() {
   try {
     await auth.login(email.value, password.value)
     router.push('/map')
-  } catch (err: any) {
+  } catch {
     error.value = 'Falha no login. Verifique o servidor.'
   }
 }
