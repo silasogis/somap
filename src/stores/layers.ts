@@ -8,7 +8,14 @@ export const useLayersStore = defineStore('layers', () => {
   
   async function fetchLayers(workspaceId: string) {
     layers.value = await apiFetch<LayerConfig[]>(`/layers?workspaceId=${workspaceId}`)
-    layers.value.sort((a, b) => a.zIndex - b.zIndex)
+    layers.value.sort((a, b) => {
+      const aBase = a.basemap ? 1 : 0
+      const bBase = b.basemap ? 1 : 0
+      if (aBase !== bBase) {
+        return bBase - aBase
+      }
+      return a.zIndex - b.zIndex
+    })
   }
 
   async function updateLayer(id: string, updates: Partial<LayerConfig>) {

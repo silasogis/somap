@@ -20,6 +20,7 @@ export interface LayerConfig {
   visible: boolean;
   opacity: number;
   zIndex: number;
+  basemap?: boolean;
   style?: {
     color?: string;
     fillColor?: string;
