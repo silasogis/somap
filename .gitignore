@@ -47,3 +47,7 @@ Nominatim_umbrel.md
 
 # Production
 .env.production
+
+# Temp/Debug files
+sp_tile.png
+
