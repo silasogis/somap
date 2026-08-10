@@ -216,7 +216,7 @@
               <div class="space-y-1.5">
                 <div class="flex justify-between items-baseline">
                   <span class="text-[10px] font-bold uppercase text-gray-400">NDVI Médio</span>
-                  <span class="text-lg font-black text-teal-600 dark:text-teal-400">{{ activeNdviStats.ndvi_mean.toFixed(3) }}</span>
+                  <span class="text-lg font-black text-teal-600 dark:text-teal-400">{{ activeNdviStats.ndvi_mean != null ? activeNdviStats.ndvi_mean.toFixed(3) : '-' }}</span>
                 </div>
                 <!-- Barra de Escala NDVI -->
                 <div class="h-2 w-full rounded-full bg-gradient-to-r from-red-500 via-amber-300 to-green-600 relative">
@@ -236,11 +236,11 @@
               <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                 <div class="flex flex-col bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-700/50">
                   <span class="text-[8px] font-bold uppercase text-gray-400">NDVI Mínimo</span>
-                  <span class="text-sm font-black text-gray-600 dark:text-gray-300 mt-0.5">{{ activeNdviStats.ndvi_min.toFixed(3) }}</span>
+                  <span class="text-sm font-black text-gray-600 dark:text-gray-300 mt-0.5">{{ activeNdviStats.ndvi_min != null ? activeNdviStats.ndvi_min.toFixed(3) : '-' }}</span>
                 </div>
                 <div class="flex flex-col bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-700/50">
                   <span class="text-[8px] font-bold uppercase text-gray-400">NDVI Máximo</span>
-                  <span class="text-sm font-black text-teal-600 dark:text-teal-400 mt-0.5">{{ activeNdviStats.ndvi_max.toFixed(3) }}</span>
+                  <span class="text-sm font-black text-teal-600 dark:text-teal-400 mt-0.5">{{ activeNdviStats.ndvi_max != null ? activeNdviStats.ndvi_max.toFixed(3) : '-' }}</span>
                 </div>
               </div>
             </div>
@@ -261,12 +261,12 @@
                   <div>
                     <span class="text-[8px] font-bold uppercase text-blue-500/80">Chuva Acumulada</span>
                     <h4 class="text-lg font-black text-blue-600 dark:text-blue-400 mt-0.5 leading-tight">
-                      {{ activePrecipitationStats.precipitation_sum.toFixed(1) }} mm
+                      {{ activePrecipitationStats.precipitation_sum != null ? activePrecipitationStats.precipitation_sum.toFixed(1) : '-' }} mm
                     </h4>
                   </div>
                   <div class="text-[9px] text-blue-500/70 font-semibold border-t border-blue-100/50 dark:border-blue-900/20 pt-1 mt-1 flex justify-between">
                     <span>Média Diária:</span>
-                    <span class="font-extrabold">{{ activePrecipitationStats.precipitation_daily_mean.toFixed(2) }} mm/d</span>
+                    <span class="font-extrabold">{{ activePrecipitationStats.precipitation_daily_mean != null ? activePrecipitationStats.precipitation_daily_mean.toFixed(2) : '-' }} mm/d</span>
                   </div>
                 </div>
 
@@ -275,12 +275,14 @@
                   <div>
                     <span class="text-[8px] font-bold uppercase text-amber-600/80">Temp. Média</span>
                     <h4 class="text-lg font-black text-amber-700 dark:text-amber-300 mt-0.5 leading-tight">
-                      {{ activeTemperatureStats.temperature_mean_celsius.toFixed(1) }} °C
+                      {{ activeTemperatureStats.temperature_mean_celsius != null ? activeTemperatureStats.temperature_mean_celsius.toFixed(1) : '-' }} °C
                     </h4>
                   </div>
                   <div class="text-[9px] text-amber-600/70 font-semibold border-t border-amber-100/50 dark:border-amber-900/20 pt-1 mt-1 flex justify-between">
                     <span>Variação:</span>
-                    <span class="font-extrabold">{{ activeTemperatureStats.temperature_min_celsius.toFixed(1) }} a {{ activeTemperatureStats.temperature_max_celsius.toFixed(1) }}°</span>
+                    <span class="font-extrabold">
+                      {{ activeTemperatureStats.temperature_min_celsius != null ? activeTemperatureStats.temperature_min_celsius.toFixed(1) : '-' }} a {{ activeTemperatureStats.temperature_max_celsius != null ? activeTemperatureStats.temperature_max_celsius.toFixed(1) : '-' }}°
+                    </span>
                   </div>
                 </div>
               </div>
@@ -387,7 +389,8 @@ const activeTemperatureStats = computed(() => {
 })
 
 // Calcula a posição na escala de -0.1 a 1.0 (largura de 1.1)
-function getNdviPercentage(val: number): number {
+function getNdviPercentage(val: number | null | undefined): number {
+  if (val == null) return 0
   const min = -0.1
   const max = 1.0
   if (val <= min) return 0
