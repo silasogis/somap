@@ -91,6 +91,10 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
     climateData.value = null
 
     try {
+      console.log('GEE Request - ROI:', JSON.stringify(roi.value))
+      console.log('GEE Request - Centroid:', JSON.stringify(centroid.value))
+      console.log('GEE Request - Date Periods:', JSON.stringify(datePeriods.value))
+
       // Call both GEE API endpoints concurrently
       const [ndviResult, climateResult] = await Promise.all([
         geeService.getNdviComposite(roi.value, datePeriods.value),
@@ -99,6 +103,9 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
           datePeriods.value
         )
       ])
+
+      console.log('GEE Response - NDVI Result:', ndviResult)
+      console.log('GEE Response - Climate Result:', climateResult)
 
       ndviData.value = ndviResult
       climateData.value = climateResult
