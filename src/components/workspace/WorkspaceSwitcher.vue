@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+  <div class="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex-shrink-0">
     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Workspace</label>
     <select v-model="selected" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-teal-500 focus:border-teal-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white font-medium shadow-sm transition-colors">
       <option v-for="ws in workspaces" :key="ws.id" :value="ws.id">{{ ws.name }}</option>

@@ -9,13 +9,14 @@ import GeoJSON from 'ol/format/GeoJSON'
 import BaseLayer from 'ol/layer/Base'
 import { useLayersStore } from '../stores/layers'
 import { useLayerStyle } from './useLayerStyle'
+import { olLayersRegistry } from './useLayerFeatures'
 import type { LayerConfig } from '../types'
 
 export function useLayer(mapRef: { value: OLMap | null }) {
   const layersStore = useLayersStore()
   const { getStyle } = useLayerStyle()
   
-  const olLayers = new Map<string, BaseLayer>()
+  const olLayers = olLayersRegistry
 
   function createOLLayer(config: LayerConfig): BaseLayer | null {
     let layer: BaseLayer | null = null

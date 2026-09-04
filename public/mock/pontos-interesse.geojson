@@ -3,8 +3,16 @@
   "features": [
     {
       "type": "Feature",
+      "id": "pt-1",
       "properties": {
-        "name": "São Paulo"
+        "id": 1,
+        "nome": "São Paulo",
+        "categoria": "Capital Estadual",
+        "estado": "SP",
+        "regiao": "Sudeste",
+        "populacao": 12396372,
+        "altitude_m": 760,
+        "status": "Ativo"
       },
       "geometry": {
         "type": "Point",
@@ -13,8 +21,16 @@
     },
     {
       "type": "Feature",
+      "id": "pt-2",
       "properties": {
-        "name": "Curitiba"
+        "id": 2,
+        "nome": "Curitiba",
+        "categoria": "Capital Estadual",
+        "estado": "PR",
+        "regiao": "Sul",
+        "populacao": 1963726,
+        "altitude_m": 934,
+        "status": "Ativo"
       },
       "geometry": {
         "type": "Point",
@@ -23,12 +39,110 @@
     },
     {
       "type": "Feature",
+      "id": "pt-3",
       "properties": {
-        "name": "Florianópolis"
+        "id": 3,
+        "nome": "Florianópolis",
+        "categoria": "Capital Estadual",
+        "estado": "SC",
+        "regiao": "Sul",
+        "populacao": 537211,
+        "altitude_m": 3,
+        "status": "Ativo"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [-48.548, -27.5954]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pt-4",
+      "properties": {
+        "id": 4,
+        "nome": "Porto Alegre",
+        "categoria": "Capital Estadual",
+        "estado": "RS",
+        "regiao": "Sul",
+        "populacao": 1492530,
+        "altitude_m": 10,
+        "status": "Ativo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.2177, -30.0346]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pt-5",
+      "properties": {
+        "id": 5,
+        "nome": "Rio de Janeiro",
+        "categoria": "Capital Estadual",
+        "estado": "RJ",
+        "regiao": "Sudeste",
+        "populacao": 6775561,
+        "altitude_m": 2,
+        "status": "Ativo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-43.1729, -22.9068]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pt-6",
+      "properties": {
+        "id": 6,
+        "nome": "Belo Horizonte",
+        "categoria": "Capital Estadual",
+        "estado": "MG",
+        "regiao": "Sudeste",
+        "populacao": 2530701,
+        "altitude_m": 852,
+        "status": "Ativo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-43.9378, -19.9208]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pt-7",
+      "properties": {
+        "id": 7,
+        "nome": "Brasília",
+        "categoria": "Capital Federal",
+        "estado": "DF",
+        "regiao": "Centro-Oeste",
+        "populacao": 3094325,
+        "altitude_m": 1172,
+        "status": "Ativo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-47.8825, -15.7942]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pt-8",
+      "properties": {
+        "id": 8,
+        "nome": "Londrina",
+        "categoria": "Polo Regional",
+        "estado": "PR",
+        "regiao": "Sul",
+        "populacao": 580870,
+        "altitude_m": 610,
+        "status": "Monitorado"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.1628, -23.3045]
       }
     }
   ]

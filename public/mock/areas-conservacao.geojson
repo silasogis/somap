@@ -1,0 +1,83 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "uc-1",
+      "properties": {
+        "id": 1,
+        "nome": "Parque Nacional do Iguaçu",
+        "categoria": "Parque Nacional",
+        "uf": "PR",
+        "bioma": "Mata Atlântica",
+        "area_ha": 185262.5,
+        "ano_criacao": 1939,
+        "status": "Proteção Integral"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-54.38, -25.55],
+            [-53.85, -25.25],
+            [-53.65, -25.60],
+            [-54.10, -25.75],
+            [-54.38, -25.55]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "uc-2",
+      "properties": {
+        "id": 2,
+        "nome": "Parque Estadual da Serra do Mar",
+        "categoria": "Parque Estadual",
+        "uf": "SP",
+        "bioma": "Mata Atlântica",
+        "area_ha": 332000.0,
+        "ano_criacao": 1977,
+        "status": "Proteção Integral"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-45.85, -23.85],
+            [-45.15, -23.35],
+            [-44.80, -23.40],
+            [-45.30, -23.95],
+            [-45.85, -23.85]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "uc-3",
+      "properties": {
+        "id": 3,
+        "nome": "Área de Proteção Ambiental de Guaratuba",
+        "categoria": "APA",
+        "uf": "PR",
+        "bioma": "Mata Atlântica / Costeiro",
+        "area_ha": 199596.0,
+        "ano_criacao": 1992,
+        "status": "Uso Sustentável"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-48.95, -25.80],
+            [-48.55, -25.75],
+            [-48.45, -26.05],
+            [-48.90, -26.00],
+            [-48.95, -25.80]
+          ]
+        ]
+      }
+    }
+  ]
+}

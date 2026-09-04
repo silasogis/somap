@@ -13,6 +13,7 @@
     <MapControls />
     <MapAttributions />
     <LegendPanel class="absolute bottom-8 left-4 z-10" />
+    <LayerAttributeTable />
   </div>
 </template>
 
@@ -32,6 +33,7 @@ import NdviClimatePanel from '../ui/NdviClimatePanel.vue'
 import MapSentinelRgb from './MapSentinelRgb.vue'
 import SentinelRgbPanel from '../ui/SentinelRgbPanel.vue'
 import LegendPanel from '../ui/LegendPanel.vue'
+import LayerAttributeTable from '../layers/LayerAttributeTable.vue'
 
 const { map } = useMap('ol-map-target')
 useLayer(map)

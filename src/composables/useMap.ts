@@ -21,9 +21,12 @@ export function useMap(targetId: string) {
     })
 
     mapRef.value = map
+    mapStore.setMap(map)
   })
 
   onUnmounted(() => {
+    const mapStore = useMapStore()
+    mapStore.setMap(null)
     if (mapRef.value) {
       mapRef.value.setTarget(undefined)
       mapRef.value = null
