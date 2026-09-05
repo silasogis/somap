@@ -80,51 +80,42 @@ A plataforma combina o ecossistema GIS tradicional (PostGIS, GeoServer, padrões
 O ecossistema do SOMAP é composto pelo frontend estático desacoplado e um servidor doméstico autônomo baseado em **UmbrelOS**, conectado à internet através de **Cloudflare Tunnels** criptografados:
 
 ```mermaid
-flowchart TB
-    subgraph Client["Cliente / Navegador Web"]
-        UI["Frontend SOMAP\n(Vue 3 + OpenLayers + Pinia)"]
-        MSW["Mock Service Worker (MSW)\n(Ambiente de Dev / Offline)"]
+flowchart TD
+    subgraph Client [Cliente / Navegador Web]
+        UI["Frontend SOMAP<br/>(Vue 3 + OpenLayers + Pinia)"]
+        MSW["Mock Service Worker (MSW)<br/>(Ambiente Dev / Offline)"]
     end
 
-    subgraph Edge["Camada de Borda & Segurança"]
-        CF["Cloudflare Zero Trust / Cloudflare Tunnel\n(*.somaping.online)"]
+    subgraph Edge [Camada de Borda e Seguranca]
+        CF["Cloudflare Zero Trust / Tunnel<br/>(somaping.online)"]
     end
 
-    subgraph Umbrel["Servidor Homelab — UmbrelOS"]
-        subgraph DockerServices["Microsserviços Conteinerizados (Docker)"]
-            FASTAPI["Backend FastAPI\n(api.somaping.online)\n• Autenticação JWT\n• Metadados & Camadas\n• API de Rotas (/v1/routes)"]
-            GEOSERVER["GeoServer OGC\n(geo.somaping.online)\n• WMS / WFS\n• GetFeatureInfo\n• GetLegendGraphic"]
-            NOMINATIM["Nominatim OSM\n(nominatim.somaping.online)\n• Geocodificação Direta\n• Geocodificação Reversa"]
-            GEE_PROXY["GEE Microservice\n(gee.somaping.online)\n• Sentinel-2 RGB\n• NDVI & Análise Climática"]
-        end
-
-        subgraph SpatialDB["Banco de Dados Espacial"]
-            POSTGRES[("PostgreSQL\n+ PostGIS\n+ pgRouting")]
-        end
+    subgraph Umbrel [Servidor Homelab - UmbrelOS]
+        FASTAPI["FastAPI Backend<br/>api.somaping.online<br/>- Auth JWT, Metadados e Rotas"]
+        GEOSERVER["GeoServer OGC<br/>geo.somaping.online<br/>- WMS, WFS e GetFeatureInfo"]
+        NOMINATIM["Nominatim OSM<br/>nominatim.somaping.online<br/>- Geocodificacao Direta e Reversa"]
+        GEE_PROXY["GEE Microservice<br/>gee.somaping.online<br/>- Sentinel-2 RGB, NDVI e Clima"]
+        POSTGRES[("PostgreSQL + PostGIS + pgRouting<br/>(Banco de Dados Espacial)")]
     end
 
-    subgraph External["Serviços em Nuvem & Provedores Externos"]
-        GEE_CLOUD["Google Earth Engine Cloud\n(Processamento Raster & Catálogos)"]
-        BASEMAPS["Provedores de Tiles\n(OSM, CartoDB, Satélite)"]
+    subgraph Cloud [Servicos em Nuvem e Provedores]
+        GEE_CLOUD["Google Earth Engine Cloud<br/>(Processamento Raster e Catalogos)"]
+        BASEMAPS["Provedores de Basemap<br/>(OSM, CartoDB, Satelite)"]
     end
 
-    %% Conexões do Frontend
-    UI -.->|"Desenvolvimento local"| MSW
-    UI -->|"HTTPS (Produção)"| CF
-    UI -->|"Tiles de terceiros"| BASEMAPS
+    UI -.->|Dev local| MSW
+    UI -->|HTTPS| CF
+    UI -->|Tiles XYZ| BASEMAPS
 
-    %% Roteamento do Cloudflare Tunnel
-    CF -->|"api.somaping.online"| FASTAPI
-    CF -->|"geo.somaping.online"| GEOSERVER
-    CF -->|"nominatim.somaping.online"| NOMINATIM
-    CF -->|"gee.somaping.online"| GEE_PROXY
+    CF -->|api.somaping.online| FASTAPI
+    CF -->|geo.somaping.online| GEOSERVER
+    CF -->|nominatim.somaping.online| NOMINATIM
+    CF -->|gee.somaping.online| GEE_PROXY
 
-    %% Integrações internas no UmbrelOS
-    FASTAPI -->|"Consultas SQL / Topologia de Rede"| POSTGRES
-    GEOSERVER -->|"Leitura de Tabelas Espaciais"| POSTGRES
+    FASTAPI -->|SQL e Topologia| POSTGRES
+    GEOSERVER -->|Camadas Espaciais| POSTGRES
 
-    %% Integração externa do microsserviço GEE
-    GEE_PROXY -->|"API de Sensoriamento Remoto"| GEE_CLOUD
+    GEE_PROXY -->|Earth Engine API| GEE_CLOUD
 ```
 
 ### 🔐 Integração com UmbrelOS & Cloudflare Tunnel
