@@ -6,6 +6,7 @@ import XYZ from 'ol/source/XYZ'
 import TileWMS from 'ol/source/TileWMS'
 import VectorSource from 'ol/source/Vector'
 import GeoJSON from 'ol/format/GeoJSON'
+import KML from 'ol/format/KML'
 import BaseLayer from 'ol/layer/Base'
 import { useLayersStore } from '../stores/layers'
 import { useLayerStyle } from './useLayerStyle'
@@ -21,7 +22,7 @@ export function useLayer(mapRef: { value: OLMap | null }) {
   function createOLLayer(config: LayerConfig): BaseLayer | null {
     let layer: BaseLayer | null = null
 
-    if (config.type === 'xyz') {
+    if (config.type === 'xyz' && config.source?.url) {
       layer = new TileLayer({
         source: new XYZ({
           url: config.source.url,
@@ -33,7 +34,7 @@ export function useLayer(mapRef: { value: OLMap | null }) {
       })
     }
     
-    else if (config.type === 'wms') {
+    else if (config.type === 'wms' && config.source?.url) {
       layer = new TileLayer({
         source: new TileWMS({
           url: config.source.url,
@@ -50,11 +51,42 @@ export function useLayer(mapRef: { value: OLMap | null }) {
     }
 
     else if (config.type === 'geojson') {
+      const source = config.source?.url
+        ? new VectorSource({
+            url: config.source.url,
+            format: new GeoJSON()
+          })
+        : new VectorSource()
+
       layer = new VectorLayer({
-        source: new VectorSource({
+        source,
+        style: getStyle(config),
+        zIndex: config.zIndex,
+        opacity: config.opacity,
+        visible: config.visible
+      })
+    }
+
+    else if (config.type === 'kml') {
+      let source: VectorSource
+      if (config.kmlText) {
+        const kmlFormat = new KML({ extractStyles: true })
+        const features = kmlFormat.readFeatures(config.kmlText, {
+          featureProjection: 'EPSG:3857',
+          dataProjection: 'EPSG:4326'
+        })
+        source = new VectorSource({ features })
+      } else if (config.source?.url) {
+        source = new VectorSource({
           url: config.source.url,
-          format: new GeoJSON()
-        }),
+          format: new KML({ extractStyles: true })
+        })
+      } else {
+        source = new VectorSource()
+      }
+
+      layer = new VectorLayer({
+        source,
         style: getStyle(config),
         zIndex: config.zIndex,
         opacity: config.opacity,

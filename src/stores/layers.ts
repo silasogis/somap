@@ -19,14 +19,32 @@ export const useLayersStore = defineStore('layers', () => {
   }
 
   async function updateLayer(id: string, updates: Partial<LayerConfig>) {
+    const index = layers.value.findIndex(l => l.id === id)
+    if (index === -1) return
+
+    const current = layers.value[index]
+    if (!current) return
+
+    if (current.isLocal) {
+      layers.value[index] = { ...current, ...updates } as LayerConfig
+      return
+    }
+
     const res = await apiFetch<LayerConfig>(`/layers/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(updates)
     })
-    const index = layers.value.findIndex(l => l.id === id)
-    if (index !== -1) {
-      layers.value[index] = res
-    }
+    layers.value[index] = res
+  }
+
+  function addLocalLayer(layer: LayerConfig) {
+    const maxZIndex = layers.value.reduce((max, l) => Math.max(max, l.zIndex || 0), 0)
+    layer.zIndex = maxZIndex + 10
+    layers.value.push(layer)
+  }
+
+  function removeLayer(id: string) {
+    layers.value = layers.value.filter(l => l.id !== id)
   }
 
   function reorderLayers(newLayers: LayerConfig[]) {
@@ -36,5 +54,5 @@ export const useLayersStore = defineStore('layers', () => {
     layers.value = newLayers
   }
 
-  return { layers, fetchLayers, updateLayer, reorderLayers }
+  return { layers, fetchLayers, updateLayer, addLocalLayer, removeLayer, reorderLayers }
 })

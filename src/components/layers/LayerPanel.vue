@@ -1,8 +1,36 @@
 <template>
   <div class="flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
     <div class="p-4 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
-      Camadas
-      <button class="text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 p-1 px-2 rounded font-bold" title="Adicionar WMS">+</button>
+      <div class="flex items-center gap-2">
+        <span>Camadas</span>
+        <span 
+          v-if="localLayersCount > 0" 
+          class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300"
+          :title="`${localLayersCount} camada(s) local(is) na sessão`"
+        >
+          +{{ localLayersCount }}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept=".kml"
+          class="hidden"
+          @change="handleFileUpload"
+        />
+        <button 
+          @click="triggerKmlUpload"
+          class="flex items-center gap-1 text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 px-2 py-1 rounded-lg transition-colors border border-teal-200/60 dark:border-teal-700/40 shadow-xs active:scale-95"
+          title="Abrir arquivo KML nesta sessão (sem salvar no banco)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>KML</span>
+        </button>
+      </div>
     </div>
     
     <div class="flex-1 overflow-y-auto p-4 space-y-6 pb-12">
@@ -26,6 +54,7 @@
             :key="layer.id"
             :layer="layer"
             @update="handleLayerUpdate"
+            @remove="handleLayerRemove"
           />
         </VueDraggableNext>
         
@@ -72,13 +101,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { VueDraggableNext } from 'vue-draggable-next'
 import LayerItem from './LayerItem.vue'
 import { useLayersStore } from '../../stores/layers'
+import { useLayerTableStore } from '../../stores/layerTable'
+import { useLayerFeatures } from '../../composables/useLayerFeatures'
 import type { LayerConfig } from '../../types'
 
 const layersStore = useLayersStore()
+const tableStore = useLayerTableStore()
+const { zoomToLayerExtent } = useLayerFeatures()
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const localLayersCount = computed(() => {
+  return layersStore.layers.filter(l => l.isLocal).length
+})
 
 const regularLayers = computed({
   get: () => [...layersStore.layers].filter(l => !l.basemap).reverse(),
@@ -98,7 +137,55 @@ const basemapLayers = computed({
   }
 })
 
+function triggerKmlUpload() {
+  fileInputRef.value?.click()
+}
+
+async function handleFileUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  try {
+    const text = await file.text()
+    const cleanName = file.name.replace(/\.kml$/i, '').trim() || 'Arquivo KML'
+    
+    const newLayer: LayerConfig = {
+      id: `kml-${Date.now()}`,
+      name: cleanName,
+      workspaceId: 'local',
+      type: 'kml',
+      visible: true,
+      opacity: 1,
+      zIndex: 0,
+      isLocal: true,
+      kmlText: text,
+      source: {
+        url: ''
+      }
+    }
+
+    layersStore.addLocalLayer(newLayer)
+
+    await nextTick()
+    setTimeout(() => {
+      zoomToLayerExtent(newLayer)
+    }, 150)
+  } catch (err) {
+    console.error('Falha ao processar arquivo KML:', err)
+  } finally {
+    input.value = ''
+  }
+}
+
 function handleLayerUpdate(id: string, updates: Partial<LayerConfig>) {
   layersStore.updateLayer(id, updates)
+}
+
+function handleLayerRemove(id: string) {
+  if (tableStore.activeLayerId === id) {
+    tableStore.closeTable()
+  }
+  layersStore.removeLayer(id)
 }
 </script>

@@ -88,9 +88,9 @@
               />
             </div>
 
-            <!-- GeoJSON -->
+            <!-- GeoJSON / KML -->
             <div 
-              v-else-if="layer.type === 'geojson'" 
+              v-else-if="layer.type === 'geojson' || layer.type === 'kml'" 
               class="flex items-center gap-3 bg-gray-50 dark:bg-gray-900/40 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800/60"
             >
               <div 
@@ -103,9 +103,11 @@
                 }"
               ></div>
               <div class="flex flex-col gap-0.5 min-w-0">
-                <span class="text-[10px] font-bold text-gray-650 dark:text-gray-300">Estilo Vetorial</span>
+                <span class="text-[10px] font-bold text-gray-650 dark:text-gray-300">
+                  {{ layer.type === 'kml' ? 'Camada KML' : 'Estilo Vetorial' }}
+                </span>
                 <span class="text-[8px] text-gray-400 dark:text-gray-500 truncate">
-                  Cor: {{ layer.style?.strokeColor || layer.style?.color || '#14b8a6' }}
+                  {{ layer.isLocal ? 'Dados em memória (sessão)' : `Cor: ${layer.style?.strokeColor || layer.style?.color || '#14b8a6'}` }}
                 </span>
               </div>
             </div>
@@ -128,7 +130,7 @@ const legendLayers = computed(() => {
   // Reverse to match standard GIS drawing hierarchy (top-most layer on top)
   return [...layersStore.layers]
     .reverse()
-    .filter(layer => layer.visible && (layer.type === 'wms' || layer.type === 'geojson'))
+    .filter(layer => layer.visible && (layer.type === 'wms' || layer.type === 'geojson' || layer.type === 'kml'))
 })
 
 function getWmsLegendUrl(layer: LayerConfig) {

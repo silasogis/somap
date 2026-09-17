@@ -373,8 +373,8 @@ export function useLayerFeatures() {
       }
     }
 
-    // 3. Compute extent from fetched features (GeoJSON or WFS)
-    if (layer.type === 'geojson' || layer.type === 'wms' || layer.type === 'wfs') {
+    // 3. Compute extent from fetched features (GeoJSON, WFS or KML)
+    if (layer.type === 'geojson' || layer.type === 'wms' || layer.type === 'wfs' || layer.type === 'kml') {
       const features = await getLayerFeatures(layer)
       if (features.length > 0) {
         const geojsonFormat = new GeoJSON()

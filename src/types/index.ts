@@ -16,11 +16,13 @@ export interface LayerConfig {
   id: string;
   name: string;
   workspaceId: string;
-  type: 'wms' | 'wfs' | 'geojson' | 'xyz';
+  type: 'wms' | 'wfs' | 'geojson' | 'xyz' | 'kml';
   visible: boolean;
   opacity: number;
   zIndex: number;
   basemap?: boolean;
+  isLocal?: boolean;
+  kmlText?: string;
   style?: {
     color?: string;
     fillColor?: string;
@@ -28,7 +30,7 @@ export interface LayerConfig {
     strokeColor?: string;
   };
   source: {
-    url: string;
+    url?: string;
     layers?: string;
     params?: Record<string, string>;
   };

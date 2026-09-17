@@ -118,9 +118,9 @@ async function handleIdentifyClick(event: any) {
 
   const collectedFeatures: Array<{ layerName: string; properties: Record<string, any> }> = []
 
-  // 1. Consultar camadas vetoriais locais (GeoJSON) clicadas no pixel
+  // 1. Consultar camadas vetoriais locais (GeoJSON e KML) clicadas no pixel
   map.value.forEachFeatureAtPixel(pixel, (feature, layer) => {
-    if (layer && layer.get('layerType') === 'geojson') {
+    if (layer && (layer.get('layerType') === 'geojson' || layer.get('layerType') === 'kml')) {
       const name = layer.get('name') || 'Camada Vetorial'
       const rawProperties = feature.getProperties()
       const cleaned = cleanProperties(rawProperties)
