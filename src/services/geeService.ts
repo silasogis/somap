@@ -57,6 +57,33 @@ export interface SentinelRgbResponse {
   }
 }
 
+export interface MapBiomasClass {
+  class_id: number
+  class_name: string
+  group: string
+  color: string
+  area_ha: number
+  percentage: number
+}
+
+export interface MapBiomasYearData {
+  year: number
+  total_area_ha: number
+  classes: MapBiomasClass[]
+  mapbiomas_tile?: string
+}
+
+export interface MapBiomasCoverageResponse {
+  status: string
+  processing_time_seconds: number
+  data: Record<string, MapBiomasYearData>
+  project_info?: {
+    mapbiomas_asset?: string
+    project_id?: string
+    status?: string
+  }
+}
+
 export class GeeApiError extends Error {
   constructor(public status: number, public data: any) {
     super(`Earth Engine API Error ${status}`)
@@ -104,6 +131,18 @@ export const geeService = {
     return geeFetch<SentinelRgbResponse>('/sentinel_rgb', {
       roi,
       date_periods: datePeriods,
+    })
+  },
+
+  async getMapBiomasCoverage(
+    roi: { type: 'Polygon'; coordinates: number[][][] },
+    years: number[] = [2020, 2023],
+    includeTiles: boolean = true
+  ): Promise<MapBiomasCoverageResponse> {
+    return geeFetch<MapBiomasCoverageResponse>('/mapbiomas_coverage', {
+      roi,
+      years,
+      include_tiles: includeTiles,
     })
   },
 }

@@ -34,6 +34,11 @@ export const useNdviClimateStore = defineStore('ndviClimate', () => {
       if (sentinelRgbStore.isActive) {
         sentinelRgbStore.toggleActive()
       }
+      const { useEudrComplianceStore } = await import('./eudrCompliance')
+      const eudrStore = useEudrComplianceStore()
+      if (eudrStore.isActive) {
+        eudrStore.toggleActive()
+      }
     } else {
       clearAnalysis()
     }

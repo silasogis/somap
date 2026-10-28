@@ -33,6 +33,12 @@ export const useSentinelRgbStore = defineStore('sentinelRgb', () => {
       if (ndviClimateStore.isActive) {
         ndviClimateStore.toggleActive()
       }
+      import('./eudrCompliance').then(({ useEudrComplianceStore }) => {
+        const eudrStore = useEudrComplianceStore()
+        if (eudrStore.isActive) {
+          eudrStore.toggleActive()
+        }
+      })
     } else {
       clearAnalysis()
     }

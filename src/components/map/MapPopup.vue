@@ -57,12 +57,14 @@ import { useNdviClimateStore } from '../../stores/ndviClimate'
 import { useRouteStore } from '../../stores/route'
 import { useSentinelRgbStore } from '../../stores/sentinelRgb'
 import { useIdentifyStore } from '../../stores/identify'
+import { useEudrComplianceStore } from '../../stores/eudrCompliance'
 
 const map = inject<Ref<Map | null>>('olMap')
 const ndviClimateStore = useNdviClimateStore()
 const routeStore = useRouteStore()
 const sentinelRgbStore = useSentinelRgbStore()
 const identifyStore = useIdentifyStore()
+const eudrStore = useEudrComplianceStore()
 const popupElement = ref<HTMLElement | null>(null)
 const result = ref<NominatimResult | null>(null)
 const loading = ref(false)
@@ -80,11 +82,35 @@ function formatType(type: string) {
   return types[type] || type.charAt(0).toUpperCase() + type.slice(1)
 }
 
+let lastDrawingEndTime = 0
+
+// Monitora quando qualquer desenho for finalizado para evitar que o clique de fechamento do polígono abra o popup
+watch(
+  () => [ndviClimateStore.isDrawing, sentinelRgbStore.isDrawing, eudrStore.isDrawing],
+  ([ndviDrawing, sentinelDrawing, eudrDrawing], oldVals) => {
+    const [oldNdvi, oldSentinel, oldEudr] = oldVals || [false, false, false]
+    if ((oldNdvi && !ndviDrawing) || (oldSentinel && !sentinelDrawing) || (oldEudr && !eudrDrawing)) {
+      lastDrawingEndTime = Date.now()
+    }
+  }
+)
+
 function handleMapClick(event: any) {
   if (!map?.value || !overlay) return
 
   // Impedir popup de geocodificação durante desenho ativo, roteirização ativa ou identificação ativa
-  if (identifyStore.isActive || ndviClimateStore.isDrawing || routeStore.isActive || sentinelRgbStore.isDrawing) {
+  if (
+    identifyStore.isActive ||
+    ndviClimateStore.isDrawing ||
+    routeStore.isActive ||
+    sentinelRgbStore.isDrawing ||
+    eudrStore.isDrawing
+  ) {
+    return
+  }
+
+  // Previne que o clique que conclui o polígono (drawend) acione o popup
+  if (Date.now() - lastDrawingEndTime < 400) {
     return
   }
 
@@ -157,6 +183,18 @@ onMounted(() => {
 
   watch(() => sentinelRgbStore.isDrawing, (drawing) => {
     if (drawing) {
+      closePopup()
+    }
+  })
+
+  watch(() => eudrStore.isDrawing, (drawing) => {
+    if (drawing) {
+      closePopup()
+    }
+  })
+
+  watch(() => eudrStore.isActive, (active) => {
+    if (active) {
       closePopup()
     }
   })

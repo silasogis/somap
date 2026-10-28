@@ -2,7 +2,7 @@
   <div class="absolute bottom-6 right-14 z-10 flex flex-col items-end gap-3 pointer-events-none">
     <!-- Botão de Ativação (se todos os painéis estiverem inativos) -->
     <button
-      v-if="!sentinelRgbStore.isActive && !ndviClimateStore.isActive && !routeStore.isActive"
+      v-if="!sentinelRgbStore.isActive && !ndviClimateStore.isActive && !routeStore.isActive && !eudrStore.isActive"
       @click="sentinelRgbStore.toggleActive"
       class="pointer-events-auto bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
     >
@@ -255,10 +255,12 @@
 import { useSentinelRgbStore } from '../../stores/sentinelRgb'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
 import { useRouteStore } from '../../stores/route'
+import { useEudrComplianceStore } from '../../stores/eudrCompliance'
 
 const sentinelRgbStore = useSentinelRgbStore()
 const ndviClimateStore = useNdviClimateStore()
 const routeStore = useRouteStore()
+const eudrStore = useEudrComplianceStore()
 
 function addPeriod() {
   const currentLen = sentinelRgbStore.datePeriods.length

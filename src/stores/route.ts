@@ -81,6 +81,11 @@ export const useRouteStore = defineStore('route', () => {
       if (sentinelStore.isActive) {
         sentinelStore.toggleActive()
       }
+      const { useEudrComplianceStore } = await import('./eudrCompliance')
+      const eudrStore = useEudrComplianceStore()
+      if (eudrStore.isActive) {
+        eudrStore.toggleActive()
+      }
     } else {
       clearRoute()
     }

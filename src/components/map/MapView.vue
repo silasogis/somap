@@ -8,6 +8,8 @@
     <NdviClimatePanel />
     <MapSentinelRgb />
     <SentinelRgbPanel />
+    <MapEudrCompliance />
+    <EudrCompliancePanel />
     <MapPopup />
     <MapIdentifyPopup />
     <MapControls />
@@ -32,6 +34,8 @@ import MapNdviClimate from './MapNdviClimate.vue'
 import NdviClimatePanel from '../ui/NdviClimatePanel.vue'
 import MapSentinelRgb from './MapSentinelRgb.vue'
 import SentinelRgbPanel from '../ui/SentinelRgbPanel.vue'
+import MapEudrCompliance from './MapEudrCompliance.vue'
+import EudrCompliancePanel from '../ui/EudrCompliancePanel.vue'
 import LegendPanel from '../ui/LegendPanel.vue'
 import LayerAttributeTable from '../layers/LayerAttributeTable.vue'
 

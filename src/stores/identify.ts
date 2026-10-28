@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useRouteStore } from './route'
 import { useNdviClimateStore } from './ndviClimate'
 import { useSentinelRgbStore } from './sentinelRgb'
+import { useEudrComplianceStore } from './eudrCompliance'
 
 export interface IdentifiedFeature {
   layerName: string
@@ -18,6 +19,7 @@ export const useIdentifyStore = defineStore('identify', () => {
   const routeStore = useRouteStore()
   const ndviClimateStore = useNdviClimateStore()
   const sentinelRgbStore = useSentinelRgbStore()
+  const eudrStore = useEudrComplianceStore()
 
   function toggleActive() {
     isActive.value = !isActive.value
@@ -34,6 +36,10 @@ export const useIdentifyStore = defineStore('identify', () => {
         sentinelRgbStore.clearAnalysis()
         sentinelRgbStore.isActive = false
       }
+      if (eudrStore.isActive) {
+        eudrStore.clearAnalysis()
+        eudrStore.isActive = false
+      }
       clear()
     }
   }
@@ -46,9 +52,9 @@ export const useIdentifyStore = defineStore('identify', () => {
 
   // Deactivate identify if other modes are activated
   watch(
-    () => [routeStore.isActive, ndviClimateStore.isActive, sentinelRgbStore.isActive],
-    ([routeActive, ndviActive, sentinelActive]) => {
-      if (routeActive || ndviActive || sentinelActive) {
+    () => [routeStore.isActive, ndviClimateStore.isActive, sentinelRgbStore.isActive, eudrStore.isActive],
+    ([routeActive, ndviActive, sentinelActive, eudrActive]) => {
+      if (routeActive || ndviActive || sentinelActive || eudrActive) {
         isActive.value = false
         clear()
       }
