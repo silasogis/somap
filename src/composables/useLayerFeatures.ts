@@ -10,6 +10,7 @@ import type { Extent } from 'ol/extent'
 import { isEmpty, createEmpty, extend } from 'ol/extent'
 import { Style, Stroke, Fill, Circle as CircleStyle } from 'ol/style'
 import { useMapStore } from '../stores/map'
+import { apiFetch } from '../services/api'
 import type { LayerConfig } from '../types'
 
 // Global layer registry shared across the app
@@ -80,6 +81,7 @@ function parseGeoJsonFeatures(rawFeatures: any[], projection = 'EPSG:3857') {
       id: f.id ?? rawProps.id ?? rawProps.gid ?? rawProps.codigo ?? rawProps.nome ?? rawProps.name ?? idx + 1,
       properties: cleanProps,
       geometry: f.geometry,
+      bbox: f.bbox,
       feature: olFeature
     }
   })
@@ -252,7 +254,86 @@ export function useLayerFeatures() {
           highlightTimeout = null
         }, autoClearMs)
       }
+    } else if (zoomTo && feature && feature.bbox && Array.isArray(feature.bbox) && feature.bbox.length === 4) {
+      try {
+        const [minX, minY, maxX, maxY] = feature.bbox
+        const extent3857 = transformExtent([minX, minY, maxX, maxY], 'EPSG:4326', mapStore.projection)
+        mapStore.fitExtent(extent3857, {
+          padding: [80, 80, 80, 80],
+          duration: 700,
+          maxZoom: 16
+        })
+      } catch (err) {
+        console.warn('Falha ao aplicar bbox da feição no mapa:', err)
+      }
     }
+  }
+
+  async function searchLayerFeatures(layer: LayerConfig, query: string, limit = 20): Promise<Array<{ id: string | number; properties: Record<string, any>; geometry: any; bbox?: [number, number, number, number]; feature?: Feature }>> {
+    if (layer.type === 'xyz' || layer.basemap || !query.trim()) {
+      return []
+    }
+
+    const trimmedQuery = query.trim()
+
+    // 1. Tentar o endpoint dedicado de busca do backend FastAPI
+    try {
+      const response = await apiFetch<any>(`/layers/${layer.id}/search?q=${encodeURIComponent(trimmedQuery)}&limit=${limit}&includeGeometry=true`)
+      if (response && response.features && Array.isArray(response.features)) {
+        return parseGeoJsonFeatures(response.features, mapStore.projection)
+      }
+    } catch (err) {
+      console.warn(`[searchLayerFeatures] Backend search falhou ou endpoint não respondeu para camada ${layer.id}. Tentando fallback:`, err)
+    }
+
+    // 2. Fallback local para camadas GeoJSON em memória
+    const olLayer = olLayersRegistry.get(layer.id)
+    if (olLayer && olLayer instanceof VectorLayer) {
+      const source = olLayer.getSource() as VectorSource
+      const features = source?.getFeatures()
+      if (features && features.length > 0) {
+        const lowerQ = trimmedQuery.toLowerCase()
+        const matched = features.filter(f => {
+          const props = f.getProperties()
+          return Object.values(props).some(v => v !== null && v !== undefined && String(v).toLowerCase().includes(lowerQ))
+        }).slice(0, limit)
+        const geojsonFormat = new GeoJSON()
+        return matched.map((f, idx) => {
+          const rawProps = f.getProperties()
+          const cleanProps: Record<string, any> = {}
+          for (const [k, v] of Object.entries(rawProps)) {
+            if (k !== 'geometry' && k !== 'geom' && k !== 'the_geom' && !k.startsWith('ol_')) {
+              cleanProps[k] = v
+            }
+          }
+          const geom = f.getGeometry()
+          return {
+            id: f.getId() ?? rawProps.id ?? rawProps.gid ?? idx + 1,
+            properties: cleanProps,
+            geometry: geom ? geojsonFormat.writeGeometryObject(geom, {
+              featureProjection: mapStore.projection,
+              dataProjection: 'EPSG:4326'
+            }) : null,
+            feature: f
+          }
+        })
+      }
+    }
+
+    return []
+  }
+
+  async function getLayerFeatureById(layer: LayerConfig, featureId: string | number): Promise<{ id: string | number; properties: Record<string, any>; geometry: any; bbox?: [number, number, number, number]; feature?: Feature } | null> {
+    try {
+      const featureData = await apiFetch<any>(`/layers/${layer.id}/features/${featureId}`)
+      if (featureData) {
+        const parsed = parseGeoJsonFeatures([featureData], mapStore.projection)
+        return parsed[0] || null
+      }
+    } catch (err) {
+      console.warn(`[getLayerFeatureById] Falha ao obter feição ${featureId} da camada ${layer.id}:`, err)
+    }
+    return null
   }
 
   async function getLayerFeatures(layer: LayerConfig): Promise<Array<{ id: string | number; properties: Record<string, any>; geometry: any; feature?: Feature }>> {
@@ -417,6 +498,8 @@ export function useLayerFeatures() {
     highlightFeature,
     clearHighlight,
     getLayerFeatures,
+    searchLayerFeatures,
+    getLayerFeatureById,
     zoomToLayerExtent,
     loadingFeatures
   }
