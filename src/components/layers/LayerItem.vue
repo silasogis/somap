@@ -139,17 +139,18 @@
       </div>
 
       <!-- Loading Search Features -->
-      <div v-if="loadingSearch" class="py-2 text-center text-[10px] text-gray-400">
-        Buscando dados da camada...
+      <div v-if="loadingSearch" class="py-2 text-center text-[10px] text-gray-400 flex items-center justify-center gap-1.5">
+        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-teal-500"></div>
+        <span>Buscando feições no servidor...</span>
       </div>
 
       <!-- Search Results List -->
-      <div v-else-if="filteredFeatures.length > 0" class="max-h-36 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+      <div v-else-if="searchResults.length > 0" class="max-h-36 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
         <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider pb-0.5">
-          {{ filteredFeatures.length }} {{ filteredFeatures.length === 1 ? 'resultado' : 'resultados' }}
+          {{ searchResults.length }} {{ searchResults.length === 1 ? 'resultado' : 'resultados' }}
         </div>
         <button
-          v-for="item in filteredFeatures"
+          v-for="item in searchResults"
           :key="item.id"
           @click="locateFeature(item)"
           class="w-full text-left p-1.5 rounded bg-white dark:bg-gray-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 border border-gray-100 dark:border-gray-700/60 transition-colors flex items-center justify-between gap-1 group/btn"
@@ -170,11 +171,16 @@
       </div>
 
       <!-- No Results State -->
-      <div v-else-if="searchQuery" class="py-2 text-center text-[10px] text-gray-400">
+      <div v-else-if="searchQuery.trim().length >= 2" class="py-2 text-center text-[10px] text-gray-400">
         Nenhuma feição encontrada para "{{ searchQuery }}".
       </div>
 
-      <div v-else-if="layer.type === 'xyz' || layer.basemap" class="py-1 text-center text-[10px] text-gray-400 italic">
+      <!-- Search Hint -->
+      <div v-else-if="layer.type !== 'xyz' && !layer.basemap" class="py-1 text-center text-[10px] text-gray-400 italic">
+        Digite ao menos 2 caracteres para pesquisar.
+      </div>
+
+      <div v-else class="py-1 text-center text-[10px] text-gray-400 italic">
         A busca textual de feições não está disponível para mapas base (XYZ).
       </div>
     </div>
@@ -182,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import type { LayerConfig } from '../../types'
 import { useLayerFeatures } from '../../composables/useLayerFeatures'
 import { useLayerTableStore } from '../../stores/layerTable'
@@ -197,13 +203,14 @@ function handleRemove() {
   emit('remove', props.layer.id)
 }
 
-const { zoomToLayerExtent, getLayerFeatures, highlightFeature } = useLayerFeatures()
+const { zoomToLayerExtent, searchLayerFeatures, getLayerFeatureById, highlightFeature } = useLayerFeatures()
 const tableStore = useLayerTableStore()
 
 const isSearchOpen = ref(false)
 const searchQuery = ref('')
-const layerFeatures = ref<Array<{ id: string | number; properties: Record<string, any>; geometry: any; feature?: any }>>([])
+const searchResults = ref<Array<{ id: string | number; properties: Record<string, any>; geometry: any; bbox?: [number, number, number, number]; feature?: any }>>([])
 const loadingSearch = ref(false)
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const visible = computed({
   get: () => props.layer.visible,
@@ -223,15 +230,10 @@ function handleZoomToExtent() {
   zoomToLayerExtent(props.layer)
 }
 
-async function toggleSearch() {
+function toggleSearch() {
   isSearchOpen.value = !isSearchOpen.value
-  if (isSearchOpen.value && layerFeatures.value.length === 0) {
-    loadingSearch.value = true
-    try {
-      layerFeatures.value = await getLayerFeatures(props.layer)
-    } finally {
-      loadingSearch.value = false
-    }
+  if (isSearchOpen.value && searchQuery.value.trim().length >= 2 && searchResults.value.length === 0) {
+    performSearch(searchQuery.value)
   }
 }
 
@@ -239,35 +241,86 @@ function toggleAttributeTable() {
   tableStore.toggleTable(props.layer.id)
 }
 
-const filteredFeatures = computed(() => {
-  if (!searchQuery.value.trim()) return layerFeatures.value
-  const q = searchQuery.value.toLowerCase().trim()
-  return layerFeatures.value.filter(item => {
-    return Object.values(item.properties).some(val => {
-      if (val === null || val === undefined) return false
-      return String(val).toLowerCase().includes(q)
-    })
-  })
+watch(searchQuery, (newVal) => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  const q = newVal.trim()
+  if (q.length < 2) {
+    searchResults.value = []
+    loadingSearch.value = false
+    return
+  }
+
+  loadingSearch.value = true
+  debounceTimer = setTimeout(() => {
+    performSearch(q)
+  }, 300)
+})
+
+async function performSearch(query: string) {
+  loadingSearch.value = true
+  try {
+    searchResults.value = await searchLayerFeatures(props.layer, query, 20)
+  } finally {
+    loadingSearch.value = false
+  }
+}
+
+onUnmounted(() => {
+  if (debounceTimer) clearTimeout(debounceTimer)
 })
 
 function getItemTitle(item: any): string {
-  return item.properties.nome || item.properties.name || item.properties.title || `Feição #${item.id}`
+  return (
+    item.properties.cod_imovel ||
+    item.properties.nome ||
+    item.properties.name ||
+    item.properties.municipio ||
+    item.properties.title ||
+    `Feição #${item.id}`
+  )
 }
 
 function getItemSubtitle(item: any): string {
   const parts: string[] = []
+  if (item.properties.municipio && item.properties.cod_imovel) parts.push(item.properties.municipio)
+  if (item.properties.num_area) parts.push(`${item.properties.num_area} ha`)
+  if (item.properties.nom_tema) parts.push(item.properties.nom_tema)
   if (item.properties.categoria) parts.push(item.properties.categoria)
-  if (item.properties.estado || item.properties.uf) parts.push(item.properties.estado || item.properties.uf)
+  if (item.properties.estado || item.properties.uf || item.properties.cod_estado) {
+    parts.push(item.properties.estado || item.properties.uf || item.properties.cod_estado)
+  }
   if (item.properties.bioma) parts.push(item.properties.bioma)
-  if (item.properties.status) parts.push(item.properties.status)
+  if (item.properties.status || item.properties.ind_status) {
+    parts.push(item.properties.status || item.properties.ind_status)
+  }
   return parts.join(' • ') || 'Ver feição no mapa'
 }
 
-function locateFeature(item: any) {
-  // Ensure layer is visible
+async function locateFeature(item: any) {
+  // Garantir visibilidade da camada
   if (!props.layer.visible) {
     emit('update', props.layer.id, { visible: true })
   }
-  highlightFeature(item.feature || item, true)
+
+  // 1. Se a feição já possuir geometria GeoJSON, dá zoom e destaca instantaneamente
+  if (item.geometry) {
+    highlightFeature(item.feature || item, true)
+    return
+  }
+
+  // 2. Se possuir bbox mas sem geometry (caso includeGeometry=false), enquadra no bbox imediatamente
+  if (item.bbox) {
+    highlightFeature(item, true)
+  }
+
+  // 3. Busca a geometria individual completa no endpoint dedicado para desenhar o polígono destacado
+  try {
+    const fullFeature = await getLayerFeatureById(props.layer, item.id)
+    if (fullFeature && fullFeature.geometry) {
+      highlightFeature(fullFeature, !item.bbox)
+    }
+  } catch (err) {
+    console.warn('Erro ao carregar geometria detalhada da feição selecionada:', err)
+  }
 }
 </script>
