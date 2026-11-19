@@ -80,3 +80,13 @@ export interface DescobertaResult {
   versao?: string
   cache?: boolean
 }
+
+export interface ConviteValidacao {
+  valido: boolean
+  nome: string
+  expira_em: string
+  limite_analises: number
+  analises_usadas: number
+  analises_restantes: number
+}
+
