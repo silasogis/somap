@@ -49,8 +49,12 @@ import { toLonLat, fromLonLat } from 'ol/proj'
 import { useRaioXStore } from '../../stores/raioX'
 import type { ConcorrenteProps } from '../../types/raioX'
 
+const props = defineProps<{
+  store?: any
+}>()
+
 const map = inject<Ref<Map | null>>('olMap')
-const raioXStore = useRaioXStore()
+const raioXStore = props.store || useRaioXStore()
 
 const popupEl = ref<HTMLElement | null>(null)
 const popupData = ref<ConcorrenteProps | null>(null)

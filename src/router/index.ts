@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue')
     },
     {
+      path: '/raio-x',
+      name: 'raio-x-publico',
+      component: () => import('../views/PublicRaioXView.vue')
+    },
+    {
       path: '/map',
       name: 'map',
       component: () => import('../views/MapView.vue'),
