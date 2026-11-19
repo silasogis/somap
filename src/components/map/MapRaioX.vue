@@ -1,8 +1,9 @@
 <template>
   <!-- Overlay Popup para detalhe do concorrente -->
   <div
+    v-show="popupData !== null"
     ref="popupEl"
-    class="absolute bg-white dark:bg-gray-800 shadow-xl rounded-xl p-3 min-w-[220px] max-w-[320px] border border-gray-200 dark:border-gray-700 text-xs hidden z-50 pointer-events-auto"
+    class="absolute bg-white dark:bg-gray-800 shadow-xl rounded-xl p-3 min-w-[220px] max-w-[320px] border border-gray-200 dark:border-gray-700 text-xs z-50 pointer-events-auto"
   >
     <button
       @click="fecharPopup"
@@ -40,7 +41,7 @@ import type { MapBrowserEvent } from 'ol'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import GeoJSON from 'ol/format/GeoJSON'
-import { Style, Stroke, Fill, Circle as CircleStyle, Icon } from 'ol/style'
+import { Style, Stroke, Fill, Circle as CircleStyle } from 'ol/style'
 import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import Overlay from 'ol/Overlay'
@@ -160,9 +161,34 @@ function handlePointerMove(event: MapBrowserEvent<any>) {
   })
   const target = map.value.getTargetElement()
   if (target) {
-    target.style.cursor = hit ? 'pointer' : ''
+    if (hit) {
+      target.style.cursor = 'pointer'
+    } else if (raioXStore.isLoading) {
+      target.style.cursor = 'wait'
+    } else {
+      target.style.cursor = 'crosshair'
+    }
   }
 }
+
+// Observa mudanças no cursor com base no estado da store
+watch(
+  () => [raioXStore.isActive, raioXStore.isLoading],
+  ([active, loading]) => {
+    if (map?.value) {
+      const target = map.value.getTargetElement()
+      if (target) {
+        if (!active) {
+          target.style.cursor = ''
+        } else if (loading) {
+          target.style.cursor = 'wait'
+        } else {
+          target.style.cursor = 'crosshair'
+        }
+      }
+    }
+  }
+)
 
 // Renderização dos dados da store
 watch(
@@ -241,24 +267,36 @@ watch(
   }
 )
 
+function setupMap(olMap: Map) {
+  olMap.addLayer(isoLayer)
+  olMap.addLayer(concLayer)
+  olMap.addLayer(markerLayer)
+
+  if (popupEl.value && !popupOverlay) {
+    popupOverlay = new Overlay({
+      element: popupEl.value,
+      positioning: 'bottom-center',
+      stopEvent: true,
+      offset: [0, -10],
+    })
+    olMap.addOverlay(popupOverlay)
+  }
+
+  olMap.on('click', handleMapClick)
+  olMap.on('pointermove', handlePointerMove)
+}
+
 onMounted(() => {
-  if (map?.value) {
-    map.value.addLayer(isoLayer)
-    map.value.addLayer(concLayer)
-    map.value.addLayer(markerLayer)
-
-    if (popupEl.value) {
-      popupOverlay = new Overlay({
-        element: popupEl.value,
-        positioning: 'bottom-center',
-        stopEvent: true,
-        offset: [0, -10],
-      })
-      map.value.addOverlay(popupOverlay)
-    }
-
-    map.value.on('click', handleMapClick)
-    map.value.on('pointermove', handlePointerMove)
+  if (map) {
+    watch(
+      map,
+      (newMap) => {
+        if (newMap) {
+          setupMap(newMap)
+        }
+      },
+      { immediate: true }
+    )
   }
 })
 

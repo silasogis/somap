@@ -328,7 +328,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRaioXStore } from '../../stores/raioX'
 import { useRouteStore } from '../../stores/route'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
@@ -347,6 +347,27 @@ const eudrStore = useEudrComplianceStore()
 const searchQuery = ref('')
 const sugestoes = ref<NominatimResult[]>([])
 let searchTimeout: any = null
+
+watch(
+  () => raioXStore.selectedPoint,
+  async (point) => {
+    if (point) {
+      const [lon, lat] = point
+      try {
+        const res = await geocodingService.reverse(lat, lon, 16)
+        if (res && res.display_name) {
+          searchQuery.value = res.display_name
+        } else {
+          searchQuery.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+        }
+      } catch {
+        searchQuery.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+      }
+    } else {
+      searchQuery.value = ''
+    }
+  }
+)
 
 function formatarNumero(n?: number | null) {
   if (n === null || n === undefined) return '–'
