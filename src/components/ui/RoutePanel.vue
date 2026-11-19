@@ -5,7 +5,7 @@
   >
     <!-- Botão de Ativação (se todos os painéis estiverem inativos) -->
     <button
-      v-if="!routeStore.isActive && !ndviClimateStore.isActive && !sentinelRgbStore.isActive && !eudrStore.isActive"
+      v-if="!routeStore.isActive && !ndviClimateStore.isActive && !sentinelRgbStore.isActive && !eudrStore.isActive && !raioXStore.isActive"
       @click="routeStore.toggleActive"
       class="pointer-events-auto bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
     >
@@ -147,11 +147,13 @@ import { useRouteStore } from '../../stores/route'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
 import { useSentinelRgbStore } from '../../stores/sentinelRgb'
 import { useEudrComplianceStore } from '../../stores/eudrCompliance'
+import { useRaioXStore } from '../../stores/raioX'
 
 const routeStore = useRouteStore()
 const ndviClimateStore = useNdviClimateStore()
 const sentinelRgbStore = useSentinelRgbStore()
 const eudrStore = useEudrComplianceStore()
+const raioXStore = useRaioXStore()
 
 function formatTime(hours: number): string {
   const h = Math.floor(hours)

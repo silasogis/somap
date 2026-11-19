@@ -5,7 +5,7 @@
   >
     <!-- Botão de Ativação Flutuante (quando os painéis analíticos estiverem inativos) -->
     <button
-      v-if="!eudrStore.isActive && !ndviClimateStore.isActive && !routeStore.isActive && !sentinelRgbStore.isActive"
+      v-if="!eudrStore.isActive && !ndviClimateStore.isActive && !routeStore.isActive && !sentinelRgbStore.isActive && !raioXStore.isActive"
       @click="eudrStore.toggleActive"
       class="pointer-events-auto bg-white dark:bg-gray-900 shadow-xl rounded-full px-5 py-3 flex items-center gap-3 hover:scale-105 transition-all border border-gray-100 dark:border-gray-800 group"
       title="Passaporte Digital & Due Diligence EUDR (Regulamento UE 2023/1115)"
@@ -654,6 +654,7 @@ import { useEudrComplianceStore } from '../../stores/eudrCompliance'
 import { useNdviClimateStore } from '../../stores/ndviClimate'
 import { useRouteStore } from '../../stores/route'
 import { useSentinelRgbStore } from '../../stores/sentinelRgb'
+import { useRaioXStore } from '../../stores/raioX'
 import EudrReportModal from './EudrReportModal.vue'
 
 const isReportModalOpen = ref(false)
@@ -662,6 +663,7 @@ const eudrStore = useEudrComplianceStore()
 const ndviClimateStore = useNdviClimateStore()
 const routeStore = useRouteStore()
 const sentinelRgbStore = useSentinelRgbStore()
+const raioXStore = useRaioXStore()
 
 // Dimensões do Gráfico SVG
 const chartWidth = 360

@@ -81,6 +81,11 @@ export const useEudrComplianceStore = defineStore('eudrCompliance', () => {
       if (sentinelRgbStore.isActive) {
         sentinelRgbStore.toggleActive()
       }
+      const { useRaioXStore } = await import('./raioX')
+      const raioXStore = useRaioXStore()
+      if (raioXStore.isActive) {
+        raioXStore.toggleActive()
+      }
     } else {
       clearAnalysis()
     }
