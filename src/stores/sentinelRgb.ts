@@ -39,6 +39,12 @@ export const useSentinelRgbStore = defineStore('sentinelRgb', () => {
           eudrStore.toggleActive()
         }
       })
+      import('./raioX').then(({ useRaioXStore }) => {
+        const raioXStore = useRaioXStore()
+        if (raioXStore.isActive) {
+          raioXStore.toggleActive()
+        }
+      })
     } else {
       clearAnalysis()
     }

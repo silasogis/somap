@@ -10,6 +10,8 @@
     <SentinelRgbPanel />
     <MapEudrCompliance />
     <EudrCompliancePanel />
+    <MapRaioX />
+    <RaioXPanel />
     <MapPopup />
     <MapIdentifyPopup />
     <MapControls />
@@ -36,6 +38,8 @@ import MapSentinelRgb from './MapSentinelRgb.vue'
 import SentinelRgbPanel from '../ui/SentinelRgbPanel.vue'
 import MapEudrCompliance from './MapEudrCompliance.vue'
 import EudrCompliancePanel from '../ui/EudrCompliancePanel.vue'
+import MapRaioX from './MapRaioX.vue'
+import RaioXPanel from '../ui/RaioXPanel.vue'
 import LegendPanel from '../ui/LegendPanel.vue'
 import LayerAttributeTable from '../layers/LayerAttributeTable.vue'
 

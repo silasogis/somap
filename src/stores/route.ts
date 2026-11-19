@@ -86,6 +86,11 @@ export const useRouteStore = defineStore('route', () => {
       if (eudrStore.isActive) {
         eudrStore.toggleActive()
       }
+      const { useRaioXStore } = await import('./raioX')
+      const raioXStore = useRaioXStore()
+      if (raioXStore.isActive) {
+        raioXStore.toggleActive()
+      }
     } else {
       clearRoute()
     }

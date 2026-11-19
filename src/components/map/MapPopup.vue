@@ -58,6 +58,7 @@ import { useRouteStore } from '../../stores/route'
 import { useSentinelRgbStore } from '../../stores/sentinelRgb'
 import { useIdentifyStore } from '../../stores/identify'
 import { useEudrComplianceStore } from '../../stores/eudrCompliance'
+import { useRaioXStore } from '../../stores/raioX'
 
 const map = inject<Ref<Map | null>>('olMap')
 const ndviClimateStore = useNdviClimateStore()
@@ -65,6 +66,7 @@ const routeStore = useRouteStore()
 const sentinelRgbStore = useSentinelRgbStore()
 const identifyStore = useIdentifyStore()
 const eudrStore = useEudrComplianceStore()
+const raioXStore = useRaioXStore()
 const popupElement = ref<HTMLElement | null>(null)
 const result = ref<NominatimResult | null>(null)
 const loading = ref(false)
@@ -104,7 +106,8 @@ function handleMapClick(event: any) {
     ndviClimateStore.isDrawing ||
     routeStore.isActive ||
     sentinelRgbStore.isDrawing ||
-    eudrStore.isDrawing
+    eudrStore.isDrawing ||
+    raioXStore.isActive
   ) {
     return
   }
